@@ -1,6 +1,6 @@
 /*
 * ClearURLs
-* Copyright (c) 2017-2020 Kevin Röbert
+* Copyright (c) 2017-2025 Kevin Röbert
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Lesser General Public License as published by
@@ -27,7 +27,7 @@ let badges = {};
  * Increases the badged by one.
  */
 function increaseBadged(quiet = false, request) {
-    if (!quiet) increaseURLCounter();
+    if (!quiet) increaseCleanedCounter();
 
     if(request === null) return;
 

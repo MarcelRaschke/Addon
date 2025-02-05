@@ -1,6 +1,6 @@
 /*
 * ClearURLs
-* Copyright (c) 2017-2020 Kevin Röbert
+* Copyright (c) 2017-2025 Kevin Röbert
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Lesser General Public License as published by
@@ -114,20 +114,16 @@ function checkLocalURL(url) {
  * @return {int}        Number of Parameters
  */
 function countFields(url) {
-    return new URL(url).searchParams.entries.length;
+    return [...new URL(url).searchParams].length
 }
 
 /**
  * Extract the fragments from an url.
  * @param  {URL} url URL as object
- * @return {URLSearchParams}     fragments as URLSearchParams object
+ * @return {URLHashParams}     fragments as URLSearchParams object
  */
 function extractFragments(url) {
-    if (url.hash) {
-        return new URLSearchParams(url.hash.slice(1));
-    } else {
-        return new URLSearchParams();
-    }
+    return new URLHashParams(url)
 }
 
 /**
@@ -158,23 +154,23 @@ function loadOldDataFromStore() {
 }
 
 /**
- * Increase by {number} the GlobalURLCounter
+ * Increase by {number} the total counter
  * @param  {int} number
  */
-function increaseGlobalURLCounter(number) {
+function increaseTotalCounter(number) {
     if (storage.statisticsStatus) {
-        storage.globalurlcounter += number;
-        deferSaveOnDisk('globalurlcounter');
+        storage.totalCounter += number;
+        deferSaveOnDisk('totalCounter');
     }
 }
 
 /**
- * Increase by one the URLCounter
+ * Increase by one the cleaned counter
  */
-function increaseURLCounter() {
+function increaseCleanedCounter() {
     if (storage.statisticsStatus) {
-        storage.globalCounter++;
-        deferSaveOnDisk('globalCounter');
+        storage.cleanedCounter++;
+        deferSaveOnDisk('cleanedCounter');
     }
 }
 
@@ -331,4 +327,31 @@ async function sha256(message) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
 
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Generates a non-secure random ASCII string of length {@code len}.
+ * 
+ * @returns non-secure random ASCII
+ */
+function randomASCII(len) {
+    return [...Array(len)].map(() => (~~(Math.random() * 36)).toString(36)).join('');
+}
+
+/**
+ * Returns an URLSearchParams as string.
+ * Does handle spaces correctly.
+ */
+function urlSearchParamsToString(searchParams) {
+    const rtn = []
+
+    searchParams.forEach((value, key) => {
+        if (value) {
+            rtn.push(key + '=' + encodeURIComponent(value))
+        } else {
+            rtn.push(key)
+        }
+    })
+
+    return rtn.join('&')
 }

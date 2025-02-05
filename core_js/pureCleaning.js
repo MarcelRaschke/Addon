@@ -1,6 +1,6 @@
 /*
 * ClearURLs
-* Copyright (c) 2017-2020 Kevin Röbert
+* Copyright (c) 2017-2025 Kevin Röbert
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Lesser General Public License as published by
@@ -46,7 +46,7 @@ function _cleaning(url, quiet = false) {
 
     if (!quiet) {
         //Add Fields form Request to global url counter
-        increaseGlobalURLCounter(URLbeforeReplaceCount);
+        increaseTotalCounter(URLbeforeReplaceCount);
     }
 
     for (let i = 0; i < providers.length; i++) {

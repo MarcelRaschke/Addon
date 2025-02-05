@@ -1,6 +1,6 @@
 /*
 * ClearURLs
-* Copyright (c) 2017-2020 Kevin Röbert
+* Copyright (c) 2017-2025 Kevin Röbert
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Lesser General Public License as published by
@@ -61,6 +61,13 @@ function storageDataAsString(key) {
         default:
             return value;
     }
+}
+
+/**
+ * Delete key from browser storage.
+ */
+function deleteFromDisk(key) {
+    browser.storage.local.remove(key).catch(handleError);
 }
 
 /**
@@ -159,6 +166,20 @@ function setData(key, value) {
         case "logLimit":
             storage[key] = Math.max(0, Number(value));
             break;
+        case "globalurlcounter":
+            // migrate from old key
+            storage["totalCounter"] = value;
+            delete storage[key];
+            deleteFromDisk(key);
+            saveOnExit();
+            break;
+        case "globalCounter":
+            // migrate from old key
+            storage["cleanedCounter"] = value;
+            delete storage[key];
+            deleteFromDisk(key);
+            saveOnExit();
+            break;
         default:
             storage[key] = value;
     }
@@ -186,8 +207,8 @@ function initSettings() {
     storage.dataHash = "";
     storage.badgedStatus = true;
     storage.globalStatus = true;
-    storage.globalurlcounter = 0;
-    storage.globalCounter = 0;
+    storage.totalCounter = 0;
+    storage.cleanedCounter = 0;
     storage.hashStatus = "error";
     storage.loggingStatus = false;
     storage.log = {"log": []};
@@ -202,7 +223,7 @@ function initSettings() {
     storage.logLimit = 100;
     storage.domainBlocking = true;
     storage.pingBlocking = true;
-    storage.eTagFiltering = true;
+    storage.eTagFiltering = false;
     storage.watchDogErrorCount = 0;
 
     if (getBrowser() === "Firefox") {

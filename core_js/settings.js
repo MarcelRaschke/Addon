@@ -1,6 +1,6 @@
 /*
 * ClearURLs
-* Copyright (c) 2017-2020 Kevin Röbert
+* Copyright (c) 2017-2025 Kevin Röbert
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Lesser General Public License as published by
@@ -147,6 +147,20 @@ function getData() {
             changeSwitchButton("domainBlocking", "domainBlocking");
             changeSwitchButton("pingBlocking", "pingBlocking");
             changeSwitchButton("eTagFiltering", "eTagFiltering");
+        })
+        .then(() => {
+            /**
+             * Since Firefox 85, eTags can no longer be 
+             * used for tracking users over multiple sites.
+             */
+            browser.runtime.sendMessage({
+                function: "getBrowser",
+                params: []
+            }).then(resp => {
+                if(resp.response === "Firefox") {
+                    document.getElementById('etag_p').remove();
+                }
+            }, null);
         }).catch(handleError);
 }
 

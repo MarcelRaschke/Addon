@@ -1,6 +1,6 @@
 /*
 * ClearURLs
-* Copyright (c) 2017-2020 Kevin Röbert
+* Copyright (c) 2017-2025 Kevin Röbert
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Lesser General Public License as published by
@@ -26,16 +26,36 @@
 
     function injectFunction() {
         let ele = document.createElement('script');
-        let s = document.getElementsByTagName('script')[0];
-
         ele.type = 'text/javascript';
-        ele.textContent = "Object.defineProperty(window, 'rwt', {" +
-        "    value: function() { return true; }," +
-        "    writable: false," +
-        "    configurable: false" +
-        "});";
+        ele.textContent = `
+            (function() {
+                "use strict";
+                
+                ${hookRwtProperty.toString()}
 
-        s.parentNode.insertBefore(ele, s);
+                const rwtDescriptor = Object.getOwnPropertyDescriptor(window, 'rwt');
+                if (!('rwt' in window) || (rwtDescriptor && rwtDescriptor.configurable)) {
+                    hookRwtProperty();
+                }
+            })();
+        `;
+
+        let s = document.getElementsByTagName('script')[0];
+        if (s !== undefined) {
+            s.parentNode.insertBefore(ele, s);
+        }
+    }
+
+    function hookRwtProperty() {        
+        try {
+            Object.defineProperty(window, 'rwt', {
+                configurable: false,
+                writable: false,
+                value: function() { return true; }
+            });
+        } catch (e) {
+            console.debug('ClearURLs: Failed to hook rwt property', e);
+        }
     }
 
     /*
@@ -62,6 +82,6 @@
             }
         }, true);
     }
-
+    
     main();
 })(window);
